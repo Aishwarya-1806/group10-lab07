@@ -104,6 +104,33 @@ void UART5_Read(void){
 
     }
 }
+void UART5_send(void){
 
+    if (!(GPIO_PORTF_DATA_R & 0X01)) { // 0X01 pressed
+        UART5_Transmit(0xF0);
+        while (!(GPIO_PORTF_DATA_R & 0X01)); // Wait until released
+    }
+    if (!(GPIO_PORTF_DATA_R & 0X10)) { // 0X10 pressed
+        UART5_Transmit(0xAA);
+        while (!(GPIO_PORTF_DATA_R & 0X10)); // Wait until released
+    }
+}
+
+void UART5_Transmit(uint8_t data) {
+    while (UART5_FR_R & UART_FR_TXFF);  // Wait until the transmit FIFO is not full
+    UART5_DR_R = data;                  // Transmit data
+}
+
+int main(void) {
+    PortF_Initialisation();
+    PORTE_Initialisation();
+    UART5_Initialisation();
+    //__asm("    cpsie i");                // Global interrupt enable
+
+    while (1) {
+
+        UART5_Read();
+    }
+}
 
 
